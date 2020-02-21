@@ -54,8 +54,8 @@ for param_id in range(0, len(parameters_names)):
 
     if len(set(curr_param['old'])) == 1 or len(set(curr_param['down'])) == 1:
         metrics_dict_down_old['param'].append(param_name)
-        metrics_dict_down_old['kruskal_h'].append(-1)
-        metrics_dict_down_old['kruskal_pval'].append(-1)
+        metrics_dict_down_old['kruskal_h'].append('nan')
+        metrics_dict_down_old['kruskal_pval'].append('nan')
         continue
 
     results_down_old = kruskal(curr_param['down'], curr_param['old'])
@@ -103,8 +103,8 @@ for param_id in range(0, len(parameters_names)):
 
     if len(set(curr_param['sibling'])) == 1 or len(set(curr_param['down'])) == 1:
         metrics_dict_down_sibling['param'].append(param_name)
-        metrics_dict_down_sibling['kruskal_h'].append(-1)
-        metrics_dict_down_sibling['kruskal_pval'].append(-1)
+        metrics_dict_down_sibling['kruskal_h'].append('nan')
+        metrics_dict_down_sibling['kruskal_pval'].append('nan')
         continue
 
     results_down_sibling = kruskal(curr_param['down'], curr_param['sibling'])
@@ -163,8 +163,8 @@ for param_id in range(0, len(parameters_names)):
 
     if len(set(curr_param['young'])) == 1 or len(set(curr_param['middle'])) == 1 or len(set(curr_param['old'])) == 1:
         metrics_dict_young_middle_old['param'].append(param_name)
-        metrics_dict_young_middle_old['kruskal_h'].append(-1)
-        metrics_dict_young_middle_old['kruskal_pval'].append(-1)
+        metrics_dict_young_middle_old['kruskal_h'].append('nan')
+        metrics_dict_young_middle_old['kruskal_pval'].append('nan')
         continue
 
     results_young_middle_old = kruskal(curr_param['young'], curr_param['middle'], curr_param['old'])
@@ -210,8 +210,8 @@ for param_id in range(0, len(parameters_names)):
 
     if len(set(curr_param['small_delta'])) == 1 or len(set(curr_param['big_delta'])) == 1:
         metrics_dict_small_big_delta['param'].append(param_name)
-        metrics_dict_small_big_delta['kruskal_h'].append(-1)
-        metrics_dict_small_big_delta['kruskal_pval'].append(-1)
+        metrics_dict_small_big_delta['kruskal_h'].append('nan')
+        metrics_dict_small_big_delta['kruskal_pval'].append('nan')
         continue
 
     results_small_big_delta = kruskal(curr_param['small_delta'], curr_param['big_delta'])
@@ -256,8 +256,8 @@ for param_id in range(0, len(parameters_names)):
 
     if len(set(curr_param['males'])) == 1 or len(set(curr_param['females'])) == 1:
         metrics_dict_male_female['param'].append(param_name)
-        metrics_dict_male_female['kruskal_h'].append(-1)
-        metrics_dict_male_female['kruskal_pval'].append(-1)
+        metrics_dict_male_female['kruskal_h'].append('nan')
+        metrics_dict_male_female['kruskal_pval'].append('nan')
         continue
 
     results_male_female = kruskal(curr_param['males'], curr_param['females'])
@@ -305,8 +305,8 @@ for param_id in range(0, len(parameters_names)):
 
     if len(set(curr_param['down_males'])) == 1 or len(set(curr_param['down_females'])) == 1:
         metrics_dict_down_male_female['param'].append(param_name)
-        metrics_dict_down_male_female['kruskal_h'].append(-1)
-        metrics_dict_down_male_female['kruskal_pval'].append(-1)
+        metrics_dict_down_male_female['kruskal_h'].append('nan')
+        metrics_dict_down_male_female['kruskal_pval'].append('nan')
         continue
 
     results_down_male_female = kruskal(curr_param['down_males'], curr_param['down_females'])
@@ -360,20 +360,20 @@ for param_id in range(0, len(parameters_names)):
 
     if len(set(curr_param['healthy_males'])) == 1 or len(set(curr_param['healthy_females'])) == 1:
         metrics_dict_male_female['param'].append(param_name)
-        metrics_dict_male_female['kruskal_h'].append(-1)
-        metrics_dict_male_female['kruskal_pval'].append(-1)
+        metrics_dict_male_female['kruskal_h'].append('nan')
+        metrics_dict_male_female['kruskal_pval'].append('nan')
         continue
 
-    results_young_male_female = kruskal(curr_param['healthy_males'], curr_param['healthy_females'])
+    results_healthy_male_female = kruskal(curr_param['healthy_males'], curr_param['healthy_females'])
     metrics_dict_male_female['param'].append(param_name)
-    metrics_dict_male_female['kruskal_h'].append(results_young_male_female[0])
-    metrics_dict_male_female['kruskal_pval'].append(results_young_male_female[1])
+    metrics_dict_male_female['kruskal_h'].append(results_healthy_male_female[0])
+    metrics_dict_male_female['kruskal_pval'].append(results_healthy_male_female[1])
 
-    if 0 < results_young_male_female[1] < 0.05:
+    if 0 < results_healthy_male_female[1] < 0.05:
         boxplot(curr_param, ['Healthy Males', 'Healthy Females'], param_name,
-                results_young_male_female[1], result_plot_path)
+                results_healthy_male_female[1], result_plot_path)
 
-result_df_male_female = pd.DataFrame.from_dict(metrics_dict_male_female)
+result_df_healthy_male_female = pd.DataFrame.from_dict(metrics_dict_male_female)
 writer = pd.ExcelWriter(result_table_path + 'healthy_males_females.xlsx', engine='xlsxwriter')
-result_df_male_female.to_excel(writer, index=False)
+result_df_healthy_male_female.to_excel(writer, index=False)
 writer.save()
