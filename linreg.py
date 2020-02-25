@@ -107,7 +107,7 @@ for param_id in range(0, len(parameters_names)):
 
             if results_delta.rsquared > 0.15:
                 linreg([curr_delta, curr_param_pa], [results_delta.params[1], results_delta.params[0]], param_name,
-                       results_delta.rsquared, 'Difference between biologic and phenotypic age', 'all_delta',
+                       results_delta.rsquared, 'Difference between biological and phenotypic age', 'all_delta',
                        result_figure_path)
 
     else:  # age experiment is ok
@@ -187,7 +187,7 @@ for param_id in range(0, len(parameters_names)):
 
             if results_delta.rsquared > 0.15:
                 linreg([curr_delta, curr_param_pa], [results_delta.params[1], results_delta.params[0]], param_name,
-                       results_delta.rsquared, 'Difference between biologic and phenotypic age', 'all_delta',
+                       results_delta.rsquared, 'Difference between biological and phenotypic age', 'all_delta',
                        result_figure_path)
 
 result_df_age = pd.DataFrame.from_dict(metrics_dict_age)
@@ -314,7 +314,7 @@ for param_id in range(0, len(parameters_names)):
 
             if results_delta.rsquared > 0.15:
                 linreg([curr_delta, curr_param_pa], [results_delta.params[1], results_delta.params[0]], param_name,
-                       results_delta.rsquared, 'Difference between chronological and phenotypic age', 'healthy_delta',
+                       results_delta.rsquared, 'Difference between biological and phenotypic age', 'healthy_delta',
                        result_figure_path)
 
     else:  # age experiment is ok
@@ -394,7 +394,7 @@ for param_id in range(0, len(parameters_names)):
 
             if results_delta.rsquared > 0.15:
                 linreg([curr_delta, curr_param_pa], [results_delta.params[1], results_delta.params[0]], param_name,
-                       results_delta.rsquared, 'Difference between chronological and phenotypic age', 'healthy_delta',
+                       results_delta.rsquared, 'Difference between biological and phenotypic age', 'healthy_delta',
                        result_figure_path)
 
 result_df_age = pd.DataFrame.from_dict(metrics_dict_age_healthy)
