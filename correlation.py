@@ -263,12 +263,12 @@ for param_id in range(0, len(parameters_names)):
             metrics_dict_delta_healthy['pointbiserial_coef'].append(pointbiserial_results_delta[0])
             metrics_dict_delta_healthy['pointbiserial_pval'].append(pointbiserial_results_delta[1])
 
-result_df_age = pd.DataFrame.from_dict(metrics_dict_age)
+result_df_age = pd.DataFrame.from_dict(metrics_dict_age_healthy)
 writer = pd.ExcelWriter(result_path + 'healthy_correlation_age.xlsx', engine='xlsxwriter')
 result_df_age.to_excel(writer, index=False)
 writer.save()
 
-result_df_delta = pd.DataFrame.from_dict(metrics_dict_delta)
+result_df_delta = pd.DataFrame.from_dict(metrics_dict_delta_healthy)
 writer = pd.ExcelWriter(result_path + 'healthy_correlation_delta.xlsx', engine='xlsxwriter')
 result_df_delta.to_excel(writer, index=False)
 writer.save()
