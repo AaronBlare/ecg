@@ -4,6 +4,7 @@ import pandas as pd
 from path import get_path
 from scipy.stats import kruskal
 from plot import boxplot
+from statsmodels.stats.multitest import multipletests
 
 path = get_path()
 ecg_table = pd.read_excel(path + '/ecg_data_info.xlsx')
@@ -19,9 +20,13 @@ result_table_path = path + '/kruskal/table/'
 if not os.path.exists(result_table_path):
     os.makedirs(result_table_path)
 
-result_plot_path = path + '/kruskal/plot/'
-if not os.path.exists(result_plot_path):
-    os.makedirs(result_plot_path)
+result_plot_path_corrected = path + '/kruskal/plot/corrected/'
+if not os.path.exists(result_plot_path_corrected):
+    os.makedirs(result_plot_path_corrected)
+
+result_plot_path_uncorrected = path + '/kruskal/plot/uncorrected/'
+if not os.path.exists(result_plot_path_uncorrected):
+    os.makedirs(result_plot_path_uncorrected)
 
 # Down subjects vs old subjects
 down_subjects_ids = []
@@ -36,6 +41,7 @@ for i in range(0, len(code_blood_table)):
         continue
 
 metrics_dict_down_old = {'param': [], 'kruskal_h': [], 'kruskal_pval': []}
+pvals_down_old = []
 
 for param_id in range(0, len(parameters_names)):
 
@@ -62,10 +68,35 @@ for param_id in range(0, len(parameters_names)):
     metrics_dict_down_old['param'].append(param_name)
     metrics_dict_down_old['kruskal_h'].append(results_down_old[0])
     metrics_dict_down_old['kruskal_pval'].append(results_down_old[1])
+    pvals_down_old.append(results_down_old[1])
 
     if 0 < results_down_old[1] < 0.05:
         boxplot(curr_param, ['Down Syndrome subjects', 'Long-living subjects'], param_name,
-                results_down_old[1], result_plot_path)
+                results_down_old[1], result_plot_path_uncorrected)
+
+reject, pvals_corr, alphacSidak, alphacBonf = multipletests(pvals_down_old, 0.05, method='fdr_bh')
+kruskal_pval_corrected = []
+original_index = 0
+for i in range(0, len(metrics_dict_down_old['param'])):
+    if metrics_dict_down_old['kruskal_pval'][i] == 'nan':
+        kruskal_pval_corrected.append('nan')
+    else:
+        kruskal_pval_corrected.append(pvals_corr[original_index])
+        if pvals_corr[original_index] < 0.05:
+            param_values = list(ecg_table[metrics_dict_down_old['param'][i]])
+            curr_param = {'down': [], 'old': []}
+            for j in range(0, len(param_values)):
+                if not math.isnan(param_values[j]):
+                    if j in down_subjects_ids:
+                        curr_param['down'].append(param_values[j])
+                    elif j in old_subjects_ids:
+                        curr_param['old'].append(param_values[j])
+                    else:
+                        continue
+            boxplot(curr_param, ['Down Syndrome subjects', 'Long-living subjects'], metrics_dict_down_old['param'][i],
+                    pvals_corr[original_index], result_plot_path_corrected)
+        original_index += 1
+metrics_dict_down_old['kruskal_pval_corr'] = kruskal_pval_corrected
 
 result_df_down_old = pd.DataFrame.from_dict(metrics_dict_down_old)
 writer = pd.ExcelWriter(result_table_path + 'down_old.xlsx', engine='xlsxwriter')
@@ -85,6 +116,7 @@ for i in range(0, len(code_blood_table)):
         continue
 
 metrics_dict_down_sibling = {'param': [], 'kruskal_h': [], 'kruskal_pval': []}
+pvals_down_sibling = []
 
 for param_id in range(0, len(parameters_names)):
 
@@ -111,10 +143,35 @@ for param_id in range(0, len(parameters_names)):
     metrics_dict_down_sibling['param'].append(param_name)
     metrics_dict_down_sibling['kruskal_h'].append(results_down_sibling[0])
     metrics_dict_down_sibling['kruskal_pval'].append(results_down_sibling[1])
+    pvals_down_sibling.append(results_down_sibling[1])
 
     if 0 < results_down_sibling[1] < 0.05:
         boxplot(curr_param, ['Down Syndrome subjects', 'Healthy Siblings'], param_name,
-                results_down_sibling[1], result_plot_path)
+                results_down_sibling[1], result_plot_path_uncorrected)
+
+reject, pvals_corr, alphacSidak, alphacBonf = multipletests(pvals_down_sibling, 0.05, method='fdr_bh')
+kruskal_pval_corrected = []
+original_index = 0
+for i in range(0, len(metrics_dict_down_sibling['param'])):
+    if metrics_dict_down_sibling['kruskal_pval'][i] == 'nan':
+        kruskal_pval_corrected.append('nan')
+    else:
+        kruskal_pval_corrected.append(pvals_corr[original_index])
+        if pvals_corr[original_index] < 0.05:
+            param_values = list(ecg_table[metrics_dict_down_sibling['param'][i]])
+            curr_param = {'down': [], 'sibling': []}
+            for j in range(0, len(param_values)):
+                if not math.isnan(param_values[j]):
+                    if j in down_subjects_ids:
+                        curr_param['down'].append(param_values[j])
+                    elif j in healthy_siblings_ids:
+                        curr_param['sibling'].append(param_values[j])
+                    else:
+                        continue
+            boxplot(curr_param, ['Down Syndrome subjects', 'Healthy Siblings'], metrics_dict_down_sibling['param'][i],
+                    pvals_corr[original_index], result_plot_path_corrected)
+        original_index += 1
+metrics_dict_down_sibling['kruskal_pval_corr'] = kruskal_pval_corrected
 
 result_df_down_sibling = pd.DataFrame.from_dict(metrics_dict_down_sibling)
 writer = pd.ExcelWriter(result_table_path + 'down_sibling.xlsx', engine='xlsxwriter')
@@ -143,7 +200,7 @@ for i in range(0, len(healthy_subjects['age'])):
         middle_subjects_ids.append(healthy_subjects['id'][i])
 
 metrics_dict_young_middle_old = {'param': [], 'kruskal_h': [], 'kruskal_pval': []}
-
+pvals_young_middle_old = []
 for param_id in range(0, len(parameters_names)):
 
     param_name = parameters_names[param_id]
@@ -171,10 +228,38 @@ for param_id in range(0, len(parameters_names)):
     metrics_dict_young_middle_old['param'].append(param_name)
     metrics_dict_young_middle_old['kruskal_h'].append(results_young_middle_old[0])
     metrics_dict_young_middle_old['kruskal_pval'].append(results_young_middle_old[1])
+    pvals_young_middle_old.append(results_young_middle_old[1])
 
     if 0 < results_young_middle_old[1] < 0.05:
         boxplot(curr_param, ['0-20 years', '20-60 years', '60-100 years'], param_name,
-                results_young_middle_old[1], result_plot_path)
+                results_young_middle_old[1], result_plot_path_uncorrected)
+
+reject, pvals_corr, alphacSidak, alphacBonf = multipletests(pvals_young_middle_old, 0.05, method='fdr_bh')
+kruskal_pval_corrected = []
+original_index = 0
+for i in range(0, len(metrics_dict_young_middle_old['param'])):
+    if metrics_dict_young_middle_old['kruskal_pval'][i] == 'nan':
+        kruskal_pval_corrected.append('nan')
+    else:
+        kruskal_pval_corrected.append(pvals_corr[original_index])
+        if pvals_corr[original_index] < 0.05:
+            param_values = list(ecg_table[metrics_dict_young_middle_old['param'][i]])
+            curr_param = {'young': [], 'middle': [], 'old': []}
+            for j in range(0, len(param_values)):
+                if not math.isnan(param_values[j]):
+                    if j in young_subjects_ids:
+                        curr_param['young'].append(param_values[j])
+                    elif j in middle_subjects_ids:
+                        curr_param['middle'].append(param_values[j])
+                    elif j in old_subjects_ids:
+                        curr_param['old'].append(param_values[j])
+                    else:
+                        continue
+            boxplot(curr_param, ['0-20 years', '20-60 years', '60-100 years'],
+                    metrics_dict_young_middle_old['param'][i],
+                    pvals_corr[original_index], result_plot_path_corrected)
+        original_index += 1
+metrics_dict_young_middle_old['kruskal_pval_corr'] = kruskal_pval_corrected
 
 result_df_young_middle_old = pd.DataFrame.from_dict(metrics_dict_young_middle_old)
 writer = pd.ExcelWriter(result_table_path + 'young_middle_old.xlsx', engine='xlsxwriter')
@@ -192,7 +277,7 @@ for i in range(0, len(delta_ages)):
         big_delta_ids.append(i)
 
 metrics_dict_small_big_delta = {'param': [], 'kruskal_h': [], 'kruskal_pval': []}
-
+pvals_small_big_delta = []
 for param_id in range(0, len(parameters_names)):
 
     param_name = parameters_names[param_id]
@@ -218,10 +303,35 @@ for param_id in range(0, len(parameters_names)):
     metrics_dict_small_big_delta['param'].append(param_name)
     metrics_dict_small_big_delta['kruskal_h'].append(results_small_big_delta[0])
     metrics_dict_small_big_delta['kruskal_pval'].append(results_small_big_delta[1])
+    pvals_small_big_delta.append(results_small_big_delta[1])
 
     if 0 < results_small_big_delta[1] < 0.05:
         boxplot(curr_param, ['Subjects with small delta age', 'Subjects with big delta age'], param_name,
-                results_small_big_delta[1], result_plot_path)
+                results_small_big_delta[1], result_plot_path_uncorrected)
+
+reject, pvals_corr, alphacSidak, alphacBonf = multipletests(pvals_small_big_delta, 0.05, method='fdr_bh')
+kruskal_pval_corrected = []
+original_index = 0
+for i in range(0, len(metrics_dict_small_big_delta['param'])):
+    if metrics_dict_small_big_delta['kruskal_pval'][i] == 'nan':
+        kruskal_pval_corrected.append('nan')
+    else:
+        kruskal_pval_corrected.append(pvals_corr[original_index])
+        if pvals_corr[original_index] < 0.05:
+            param_values = list(ecg_table[metrics_dict_small_big_delta['param'][i]])
+            curr_param = {'small_delta': [], 'big_delta': []}
+            for j in range(0, len(param_values)):
+                if not math.isnan(param_values[j]):
+                    if j in small_delta_ids:
+                        curr_param['small_delta'].append(param_values[j])
+                    elif j in big_delta_ids:
+                        curr_param['big_delta'].append(param_values[j])
+                    else:
+                        continue
+            boxplot(curr_param, ['Subjects with small delta age', 'Subjects with big delta age'],
+                    metrics_dict_small_big_delta['param'][i], pvals_corr[original_index], result_plot_path_corrected)
+        original_index += 1
+metrics_dict_small_big_delta['kruskal_pval_corr'] = kruskal_pval_corrected
 
 result_df_small_big_delta = pd.DataFrame.from_dict(metrics_dict_small_big_delta)
 writer = pd.ExcelWriter(result_table_path + 'small_big_delta.xlsx', engine='xlsxwriter')
@@ -238,7 +348,7 @@ for i in range(0, len(sex)):
         females_ids.append(i)
 
 metrics_dict_male_female = {'param': [], 'kruskal_h': [], 'kruskal_pval': []}
-
+pvals_male_female = []
 for param_id in range(0, len(parameters_names)):
 
     param_name = parameters_names[param_id]
@@ -264,10 +374,35 @@ for param_id in range(0, len(parameters_names)):
     metrics_dict_male_female['param'].append(param_name)
     metrics_dict_male_female['kruskal_h'].append(results_male_female[0])
     metrics_dict_male_female['kruskal_pval'].append(results_male_female[1])
+    pvals_male_female.append(results_male_female[1])
 
     if 0 < results_male_female[1] < 0.05:
         boxplot(curr_param, ['Males', 'Females'], param_name,
-                results_male_female[1], result_plot_path)
+                results_male_female[1], result_plot_path_uncorrected)
+
+reject, pvals_corr, alphacSidak, alphacBonf = multipletests(pvals_male_female, 0.05, method='fdr_bh')
+kruskal_pval_corrected = []
+original_index = 0
+for i in range(0, len(metrics_dict_male_female['param'])):
+    if metrics_dict_male_female['kruskal_pval'][i] == 'nan':
+        kruskal_pval_corrected.append('nan')
+    else:
+        kruskal_pval_corrected.append(pvals_corr[original_index])
+        if pvals_corr[original_index] < 0.05:
+            param_values = list(ecg_table[metrics_dict_male_female['param'][i]])
+            curr_param = {'males': [], 'females': []}
+            for j in range(0, len(param_values)):
+                if not math.isnan(param_values[j]):
+                    if j in males_ids:
+                        curr_param['males'].append(param_values[j])
+                    elif j in females_ids:
+                        curr_param['females'].append(param_values[j])
+                    else:
+                        continue
+            boxplot(curr_param, ['Males', 'Females'], metrics_dict_male_female['param'][i], pvals_corr[original_index],
+                    result_plot_path_corrected)
+        original_index += 1
+metrics_dict_male_female['kruskal_pval_corr'] = kruskal_pval_corrected
 
 result_df_male_female = pd.DataFrame.from_dict(metrics_dict_male_female)
 writer = pd.ExcelWriter(result_table_path + 'males_females.xlsx', engine='xlsxwriter')
@@ -287,7 +422,7 @@ for i in range(0, len(code_blood_table)):
         continue
 
 metrics_dict_down_male_female = {'param': [], 'kruskal_h': [], 'kruskal_pval': []}
-
+pvals_down_male_female = []
 for param_id in range(0, len(parameters_names)):
 
     param_name = parameters_names[param_id]
@@ -313,10 +448,35 @@ for param_id in range(0, len(parameters_names)):
     metrics_dict_down_male_female['param'].append(param_name)
     metrics_dict_down_male_female['kruskal_h'].append(results_down_male_female[0])
     metrics_dict_down_male_female['kruskal_pval'].append(results_down_male_female[1])
+    pvals_down_male_female.append(results_down_male_female[1])
 
     if 0 < results_down_male_female[1] < 0.05:
         boxplot(curr_param, ['Down Syndrome Males', 'Down Syndrome Females'], param_name,
-                results_down_male_female[1], result_plot_path)
+                results_down_male_female[1], result_plot_path_uncorrected)
+
+reject, pvals_corr, alphacSidak, alphacBonf = multipletests(pvals_down_male_female, 0.05, method='fdr_bh')
+kruskal_pval_corrected = []
+original_index = 0
+for i in range(0, len(metrics_dict_down_male_female['param'])):
+    if metrics_dict_down_male_female['kruskal_pval'][i] == 'nan':
+        kruskal_pval_corrected.append('nan')
+    else:
+        kruskal_pval_corrected.append(pvals_corr[original_index])
+        if pvals_corr[original_index] < 0.05:
+            param_values = list(ecg_table[metrics_dict_down_male_female['param'][i]])
+            curr_param = {'down_males': [], 'down_females': []}
+            for j in range(0, len(param_values)):
+                if not math.isnan(param_values[j]):
+                    if j in down_males_ids:
+                        curr_param['down_males'].append(param_values[j])
+                    elif j in down_females_ids:
+                        curr_param['down_females'].append(param_values[j])
+                    else:
+                        continue
+            boxplot(curr_param, ['Down Syndrome Males', 'Down Syndrome Females'],
+                    metrics_dict_down_male_female['param'][i], pvals_corr[original_index], result_plot_path_corrected)
+        original_index += 1
+metrics_dict_down_male_female['kruskal_pval_corr'] = kruskal_pval_corrected
 
 result_df_down_male_female = pd.DataFrame.from_dict(metrics_dict_down_male_female)
 writer = pd.ExcelWriter(result_table_path + 'down_males_females.xlsx', engine='xlsxwriter')
@@ -342,7 +502,7 @@ for i in range(0, len(healthy_subjects['sex'])):
         females_ids.append(healthy_subjects['id'][i])
 
 metrics_dict_male_female = {'param': [], 'kruskal_h': [], 'kruskal_pval': []}
-
+pvals_male_female = []
 for param_id in range(0, len(parameters_names)):
 
     param_name = parameters_names[param_id]
@@ -368,10 +528,35 @@ for param_id in range(0, len(parameters_names)):
     metrics_dict_male_female['param'].append(param_name)
     metrics_dict_male_female['kruskal_h'].append(results_healthy_male_female[0])
     metrics_dict_male_female['kruskal_pval'].append(results_healthy_male_female[1])
+    pvals_male_female.append(results_healthy_male_female[1])
 
     if 0 < results_healthy_male_female[1] < 0.05:
         boxplot(curr_param, ['Healthy Males', 'Healthy Females'], param_name,
-                results_healthy_male_female[1], result_plot_path)
+                results_healthy_male_female[1], result_plot_path_uncorrected)
+
+reject, pvals_corr, alphacSidak, alphacBonf = multipletests(pvals_male_female, 0.05, method='fdr_bh')
+kruskal_pval_corrected = []
+original_index = 0
+for i in range(0, len(metrics_dict_male_female['param'])):
+    if metrics_dict_male_female['kruskal_pval'][i] == 'nan':
+        kruskal_pval_corrected.append('nan')
+    else:
+        kruskal_pval_corrected.append(pvals_corr[original_index])
+        if pvals_corr[original_index] < 0.05:
+            param_values = list(ecg_table[metrics_dict_male_female['param'][i]])
+            curr_param = {'healthy_males': [], 'healthy_females': []}
+            for j in range(0, len(param_values)):
+                if not math.isnan(param_values[j]):
+                    if j in males_ids:
+                        curr_param['healthy_males'].append(param_values[j])
+                    elif j in females_ids:
+                        curr_param['healthy_females'].append(param_values[j])
+                    else:
+                        continue
+            boxplot(curr_param, ['Healthy Males', 'Healthy Females'],
+                    metrics_dict_male_female['param'][i], pvals_corr[original_index], result_plot_path_corrected)
+        original_index += 1
+metrics_dict_male_female['kruskal_pval_corr'] = kruskal_pval_corrected
 
 result_df_healthy_male_female = pd.DataFrame.from_dict(metrics_dict_male_female)
 writer = pd.ExcelWriter(result_table_path + 'healthy_males_females.xlsx', engine='xlsxwriter')
