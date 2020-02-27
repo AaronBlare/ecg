@@ -187,7 +187,7 @@ for param_id in range(0, len(parameters_names)):
     for i in range(0, len(list(ecg_table[parameters_names[param_id]]))):
         curr_param_value = list(ecg_table[parameters_names[param_id]])[i]
         if not math.isnan(curr_param_value):
-            if list(ecg_table[parameters_names[param_id]]).index(curr_param_value) in healthy_ids['age']:
+            if i in healthy_ids['age']:
                 param_values.append(curr_param_value)
                 healthy_ages.append(ages[i])
 
@@ -196,7 +196,7 @@ for param_id in range(0, len(parameters_names)):
     for i in range(0, len(list(ecg_table_pa[parameters_names[param_id]]))):
         curr_param_value = list(ecg_table_pa[parameters_names[param_id]])[i]
         if not math.isnan(curr_param_value):
-            if list(ecg_table_pa[parameters_names[param_id]]).index(curr_param_value) in healthy_ids['delta']:
+            if i in healthy_ids['delta']:
                 param_values_pa.append(curr_param_value)
                 healthy_delta_ages.append(delta_ages[i])
 
@@ -358,7 +358,7 @@ for param_id in range(0, len(parameters_names)):
     for i in range(0, len(list(ecg_table[parameters_names[param_id]]))):
         curr_param_value = list(ecg_table[parameters_names[param_id]])[i]
         if not math.isnan(curr_param_value):
-            if list(ecg_table[parameters_names[param_id]]).index(curr_param_value) in down_syndrome_ids['age']:
+            if i in down_syndrome_ids['age']:
                 param_values.append(curr_param_value)
                 down_ages.append(ages[i])
 
@@ -367,7 +367,7 @@ for param_id in range(0, len(parameters_names)):
     for i in range(0, len(list(ecg_table_pa[parameters_names[param_id]]))):
         curr_param_value = list(ecg_table_pa[parameters_names[param_id]])[i]
         if not math.isnan(curr_param_value):
-            if list(ecg_table_pa[parameters_names[param_id]]).index(curr_param_value) in down_syndrome_ids['delta']:
+            if i in down_syndrome_ids['delta']:
                 param_values_pa.append(curr_param_value)
                 down_delta_ages.append(delta_ages[i])
 
