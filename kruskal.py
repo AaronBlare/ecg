@@ -271,7 +271,7 @@ small_delta_ids = []
 big_delta_ids = []
 for i in range(0, len(delta_ages)):
     delta_age = delta_ages[i]
-    if delta_age < 6.0:
+    if abs(delta_age) < 6.0:
         small_delta_ids.append(i)
     else:
         big_delta_ids.append(i)
