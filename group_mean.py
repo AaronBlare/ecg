@@ -1,6 +1,8 @@
 import math
 import pandas as pd
+import numpy as np
 from path import get_path
+from scipy.stats import iqr
 
 path = get_path()
 data_file = path + '/ecg_data.xlsx'
@@ -26,26 +28,30 @@ for i in range(0, len(data_dict['code'])):
         subjects['Siblings of Down Syndrome subjects'].append(i)
 
 mean_data = {'group': [], 'num_subjects': []}
-mean_data.update({key: [] for key in data_dict})
 keys_to_remove = ['code', 'name', 'ecg_date', 'birth_date', 'sex']
-for key in keys_to_remove:
-    del mean_data[key]
+for key in data_dict:
+    if key not in keys_to_remove:
+        mean_data[key + ' mean'] = []
+        mean_data[key + ' std'] = []
+        mean_data[key + ' IQR'] = []
 
 for group in subjects:
     indexes = subjects[group]
     mean_data['group'].append(group)
     mean_data['num_subjects'].append(len(indexes))
     for key in data_dict:
-        if key in mean_data:
+        if key + ' mean' in mean_data:
             curr_data = [data_dict[key][i] for i in indexes]
-            curr_sum = 0.0
-            num_subjects = 0
+            curr_values = []
             for item in curr_data:
                 if not math.isnan(item):
-                    curr_sum += float(item)
-                    num_subjects += 1
-            curr_mean = curr_sum / num_subjects
-            mean_data[key].append(curr_mean)
+                    curr_values.append(float(item))
+            curr_mean = np.mean(curr_values)
+            curr_std = np.std(curr_values)
+            curr_iqr = iqr(curr_values)
+            mean_data[key + ' mean'].append(curr_mean)
+            mean_data[key + ' std'].append(curr_std)
+            mean_data[key + ' IQR'].append(curr_iqr)
 
 result_df = pd.DataFrame.from_dict(mean_data)
 writer = pd.ExcelWriter(get_path() + '/mean_characteristics.xlsx', engine='xlsxwriter')
