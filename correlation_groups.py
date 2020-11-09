@@ -298,11 +298,11 @@ save_dict_to_xlsx(metrics_dict_delta_anemia, result_path, 'correlation_delta_age
 
 # Correlation for hemodialysis subjects with age and delta age
 metrics_dict_age_dialysis = {'param': [],
-                           'spearman_rho': [], 'spearman_pval': [],
-                           'pearson_coef': [], 'pearson_pval': []}
-metrics_dict_delta_dialysis = {'param': [],
                              'spearman_rho': [], 'spearman_pval': [],
                              'pearson_coef': [], 'pearson_pval': []}
+metrics_dict_delta_dialysis = {'param': [],
+                               'spearman_rho': [], 'spearman_pval': [],
+                               'pearson_coef': [], 'pearson_pval': []}
 
 dialysis_ids = []
 for i in range(0, len(code_blood_table)):

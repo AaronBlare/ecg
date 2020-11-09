@@ -46,9 +46,9 @@ fig.update_layout(autosize=True,
                       color='black',
                       size=24),
                   barmode='overlay')
-plotly.offline.plot(fig, filename=result_path + 'pdf_age.html', auto_open=False, show_link=True)
-plotly.io.write_image(fig, result_path + 'pdf_age.png')
-plotly.io.write_image(fig, result_path + 'pdf_age.pdf')
+plotly.offline.plot(fig, filename=result_path + 'pdf_age_gender.html', auto_open=False, show_link=True)
+plotly.io.write_image(fig, result_path + 'pdf_age_gender.png')
+plotly.io.write_image(fig, result_path + 'pdf_age_gender.pdf')
 
 males_delta_ages = []
 females_delta_ages = []
@@ -68,6 +68,48 @@ fig.add_trace(go.Histogram(x=males_delta_ages,
                            marker_color='blue',
                            opacity=0.65,
                            name='Males',
+                           xbins=dict(size=2)))
+fig.update_layout(autosize=True,
+                  showlegend=True,
+                  title={
+                      'text': 'Difference between chronological and phenotypic age',
+                      'x': 0.5,
+                      'y': 0.9},
+                  titlefont=dict(
+                      family='Arial',
+                      color='black',
+                      size=24),
+                  barmode='overlay')
+plotly.offline.plot(fig, filename=result_path + 'pdf_delta_age_gender.html', auto_open=False, show_link=True)
+plotly.io.write_image(fig, result_path + 'pdf_delta_age_gender.png')
+plotly.io.write_image(fig, result_path + 'pdf_delta_age_gender.pdf')
+
+
+fig = go.Figure()
+fig.add_trace(go.Histogram(x=ages,
+                           marker_color='red',
+                           opacity=0.65,
+                           xbins=dict(size=2)))
+fig.update_layout(autosize=True,
+                  showlegend=True,
+                  title={
+                      'text': 'Age',
+                      'x': 0.5,
+                      'y': 0.9},
+                  titlefont=dict(
+                      family='Arial',
+                      color='black',
+                      size=24),
+                  barmode='overlay')
+plotly.offline.plot(fig, filename=result_path + 'pdf_age.html', auto_open=False, show_link=True)
+plotly.io.write_image(fig, result_path + 'pdf_age.png')
+plotly.io.write_image(fig, result_path + 'pdf_age.pdf')
+
+
+fig = go.Figure()
+fig.add_trace(go.Histogram(x=delta_ages,
+                           marker_color='red',
+                           opacity=0.65,
                            xbins=dict(size=2)))
 fig.update_layout(autosize=True,
                   showlegend=True,
