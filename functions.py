@@ -6,10 +6,12 @@ from statsmodels.stats.multitest import multipletests
 def subset_curr_ages(ecg_table, ids, param_name):
 
     ages = list(ecg_table['age'])
+    ph_ages = list(ecg_table['phenotypic_age'])
     delta_ages = list(ecg_table['delta_age'])
 
     param_values = []
     subset_ages = []
+    subset_ph_ages = []
     subset_delta_ages = []
 
     for i in range(0, len(list(ecg_table[param_name]))):
@@ -18,22 +20,26 @@ def subset_curr_ages(ecg_table, ids, param_name):
             if i in ids:
                 param_values.append(curr_param_value)
                 subset_ages.append(ages[i])
+                subset_ph_ages.append(ph_ages[i])
                 subset_delta_ages.append(delta_ages[i])
 
-    return subset_ages, subset_delta_ages, param_values
+    return subset_ages, subset_ph_ages, subset_delta_ages, param_values
 
 
 def calculate_correlation_with_age(ecg_table, ids,
-                                   metrics_dict_age, metrics_dict_delta):
+                                   metrics_dict_age,
+                                   metrics_dict_ph_age,
+                                   metrics_dict_delta):
 
     parameters_names = list(ecg_table.columns)[12:]
 
     pvals_age = []
+    pvals_ph_age = []
     pvals_delta_age = []
 
     for param_id in range(0, len(parameters_names)):
         param_name = parameters_names[param_id]
-        ages, delta_ages, param_values = subset_curr_ages(ecg_table, ids, param_name)
+        ages, ph_ages, delta_ages, param_values = subset_curr_ages(ecg_table, ids, param_name)
 
         if len(set(param_values)) <= 1:
             metrics_dict_age['param'].append(param_name)
@@ -41,6 +47,12 @@ def calculate_correlation_with_age(ecg_table, ids,
             metrics_dict_age['spearman_pval'].append('nan')
             metrics_dict_age['pearson_coef'].append('nan')
             metrics_dict_age['pearson_pval'].append('nan')
+
+            metrics_dict_ph_age['param'].append(param_name)
+            metrics_dict_ph_age['spearman_rho'].append('nan')
+            metrics_dict_ph_age['spearman_pval'].append('nan')
+            metrics_dict_ph_age['pearson_coef'].append('nan')
+            metrics_dict_ph_age['pearson_pval'].append('nan')
 
             metrics_dict_delta['param'].append(param_name)
             metrics_dict_delta['spearman_rho'].append('nan')
@@ -60,6 +72,16 @@ def calculate_correlation_with_age(ecg_table, ids,
             metrics_dict_age['pearson_pval'].append(pearson_results_age[1])
             pvals_age.append(spearman_results_age[1])
 
+            spearman_results_ph_age = spearmanr(ph_ages, param_values)
+            pearson_results_ph_age = pearsonr(ph_ages, param_values)
+
+            metrics_dict_ph_age['param'].append(param_name)
+            metrics_dict_ph_age['spearman_rho'].append(spearman_results_ph_age[0])
+            metrics_dict_ph_age['spearman_pval'].append(spearman_results_ph_age[1])
+            metrics_dict_ph_age['pearson_coef'].append(pearson_results_ph_age[0])
+            metrics_dict_ph_age['pearson_pval'].append(pearson_results_ph_age[1])
+            pvals_ph_age.append(spearman_results_ph_age[1])
+
             spearman_results_delta = spearmanr(delta_ages, param_values)
             pearson_results_delta = pearsonr(delta_ages, param_values)
 
@@ -70,7 +92,7 @@ def calculate_correlation_with_age(ecg_table, ids,
             metrics_dict_delta['pearson_pval'].append(pearson_results_delta[1])
             pvals_delta_age.append(spearman_results_delta[1])
 
-    return pvals_age, pvals_delta_age
+    return pvals_age, pvals_ph_age, pvals_delta_age
 
 
 def multiple_test_correction(pvals, method, metrics_dict_age):

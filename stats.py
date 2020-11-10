@@ -12,6 +12,7 @@ if not os.path.exists(result_path):
 ecg_table = pd.read_excel(path + '/ecg_data_info.xlsx')
 ecg_table_pa = ecg_table[pd.notnull(ecg_table['phenotypic_age'])]
 ages = list(ecg_table['age'])
+ph_ages = list(ecg_table['phenotypic_age'])
 sex = list(ecg_table['sex'])
 delta_ages = list(ecg_table_pa['delta_age'])
 sex_pa = list(ecg_table_pa['sex'])
@@ -49,6 +50,40 @@ fig.update_layout(autosize=True,
 plotly.offline.plot(fig, filename=result_path + 'pdf_age_gender.html', auto_open=False, show_link=True)
 plotly.io.write_image(fig, result_path + 'pdf_age_gender.png')
 plotly.io.write_image(fig, result_path + 'pdf_age_gender.pdf')
+
+males_ph_ages = []
+females_ph_ages = []
+for i in range(0, len(ph_ages)):
+    if sex[i] == 'Male':
+        males_ph_ages.append(ph_ages[i])
+    else:
+        females_ph_ages.append(ph_ages[i])
+
+fig = go.Figure()
+fig.add_trace(go.Histogram(x=females_ph_ages,
+                           marker_color='red',
+                           opacity=0.65,
+                           name='Females',
+                           xbins=dict(size=2)))
+fig.add_trace(go.Histogram(x=males_ph_ages,
+                           marker_color='blue',
+                           opacity=0.65,
+                           name='Males',
+                           xbins=dict(size=2)))
+fig.update_layout(autosize=True,
+                  showlegend=True,
+                  title={
+                      'text': 'Phenotypic Age',
+                      'x': 0.5,
+                      'y': 0.9},
+                  titlefont=dict(
+                      family='Arial',
+                      color='black',
+                      size=24),
+                  barmode='overlay')
+plotly.offline.plot(fig, filename=result_path + 'pdf_ph_age_gender.html', auto_open=False, show_link=True)
+plotly.io.write_image(fig, result_path + 'pdf_ph_age_gender.png')
+plotly.io.write_image(fig, result_path + 'pdf_ph_age_gender.pdf')
 
 males_delta_ages = []
 females_delta_ages = []
@@ -91,7 +126,7 @@ fig.add_trace(go.Histogram(x=ages,
                            opacity=0.65,
                            xbins=dict(size=2)))
 fig.update_layout(autosize=True,
-                  showlegend=True,
+                  showlegend=False,
                   title={
                       'text': 'Age',
                       'x': 0.5,
@@ -107,12 +142,33 @@ plotly.io.write_image(fig, result_path + 'pdf_age.pdf')
 
 
 fig = go.Figure()
+fig.add_trace(go.Histogram(x=ph_ages,
+                           marker_color='red',
+                           opacity=0.65,
+                           xbins=dict(size=2)))
+fig.update_layout(autosize=True,
+                  showlegend=False,
+                  title={
+                      'text': 'Phenotypic Age',
+                      'x': 0.5,
+                      'y': 0.9},
+                  titlefont=dict(
+                      family='Arial',
+                      color='black',
+                      size=24),
+                  barmode='overlay')
+plotly.offline.plot(fig, filename=result_path + 'pdf_ph_age.html', auto_open=False, show_link=True)
+plotly.io.write_image(fig, result_path + 'pdf_ph_age.png')
+plotly.io.write_image(fig, result_path + 'pdf_ph_age.pdf')
+
+
+fig = go.Figure()
 fig.add_trace(go.Histogram(x=delta_ages,
                            marker_color='red',
                            opacity=0.65,
                            xbins=dict(size=2)))
 fig.update_layout(autosize=True,
-                  showlegend=True,
+                  showlegend=False,
                   title={
                       'text': 'Difference between chronological and phenotypic age',
                       'x': 0.5,
