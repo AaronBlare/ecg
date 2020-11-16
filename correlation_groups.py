@@ -16,6 +16,10 @@ result_path = path + '/correlation_groups/'
 if not os.path.exists(result_path):
     os.makedirs(result_path)
 
+metrics_dict_age_spearman = {'param': []}
+metrics_dict_ph_age_spearman = {'param': []}
+metrics_dict_delta_age_spearman = {'param': []}
+
 # Correlation for all subjects with age and delta age
 metrics_dict_age = {'param': [],
                     'spearman_rho': [], 'spearman_pval': [],
@@ -37,6 +41,8 @@ pval_age_corrected_bonf = multiple_test_correction(pvals_age, 'bonferroni', metr
 metrics_dict_age['spearman_pval_corr_bonf'] = pval_age_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_age, result_path, 'correlation_age')
+metrics_dict_age_spearman['param'] = metrics_dict_age['param']
+metrics_dict_age_spearman['all'] = metrics_dict_age['spearman_rho']
 
 pval_ph_age_corrected_bh = multiple_test_correction(pvals_ph_age, 'fdr_bh', metrics_dict_ph_age)
 metrics_dict_ph_age['spearman_pval_corr_bh'] = pval_ph_age_corrected_bh
@@ -44,6 +50,8 @@ pval_ph_age_corrected_bonf = multiple_test_correction(pvals_ph_age, 'bonferroni'
 metrics_dict_ph_age['spearman_pval_corr_bonf'] = pval_ph_age_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_ph_age, result_path, 'correlation_ph_age')
+metrics_dict_ph_age_spearman['param'] = metrics_dict_ph_age['param']
+metrics_dict_ph_age_spearman['all'] = metrics_dict_ph_age['spearman_rho']
 
 pval_delta_corrected_bh = multiple_test_correction(pvals_delta_age, 'fdr_bh', metrics_dict_delta)
 metrics_dict_delta['spearman_pval_corr_bh'] = pval_delta_corrected_bh
@@ -51,6 +59,8 @@ pval_delta_corrected_bonf = multiple_test_correction(pvals_delta_age, 'bonferron
 metrics_dict_delta['spearman_pval_corr_bonf'] = pval_delta_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_delta, result_path, 'correlation_delta_age')
+metrics_dict_delta_age_spearman['param'] = metrics_dict_delta['param']
+metrics_dict_delta_age_spearman['all'] = metrics_dict_delta['spearman_rho']
 
 # Correlation for Down subjects with age and delta age
 metrics_dict_age_down = {'param': [],
@@ -79,6 +89,7 @@ pval_age_corrected_bonf = multiple_test_correction(pvals_age, 'bonferroni', metr
 metrics_dict_age_down['spearman_pval_corr_bonf'] = pval_age_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_age_down, result_path, 'correlation_age_down')
+metrics_dict_age_spearman['down'] = metrics_dict_age_down['spearman_rho']
 
 pval_ph_age_corrected_bh = multiple_test_correction(pvals_ph_age, 'fdr_bh', metrics_dict_ph_age_down)
 metrics_dict_ph_age_down['spearman_pval_corr_bh'] = pval_ph_age_corrected_bh
@@ -86,6 +97,7 @@ pval_ph_age_corrected_bonf = multiple_test_correction(pvals_ph_age, 'bonferroni'
 metrics_dict_ph_age_down['spearman_pval_corr_bonf'] = pval_ph_age_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_ph_age_down, result_path, 'correlation_ph_age_down')
+metrics_dict_ph_age_spearman['down'] = metrics_dict_ph_age_down['spearman_rho']
 
 pval_delta_corrected_bh = multiple_test_correction(pvals_delta_age, 'fdr_bh', metrics_dict_delta_down)
 metrics_dict_delta_down['spearman_pval_corr_bh'] = pval_delta_corrected_bh
@@ -93,6 +105,7 @@ pval_delta_corrected_bonf = multiple_test_correction(pvals_delta_age, 'bonferron
 metrics_dict_delta_down['spearman_pval_corr_bonf'] = pval_delta_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_delta_down, result_path, 'correlation_delta_age_down')
+metrics_dict_delta_age_spearman['down'] = metrics_dict_delta_down['spearman_rho']
 
 # Correlation for Down siblings with age and delta age
 metrics_dict_age_down_sibling = {'param': [],
@@ -123,6 +136,7 @@ pval_age_corrected_bonf = multiple_test_correction(pvals_age, 'bonferroni', metr
 metrics_dict_age_down_sibling['spearman_pval_corr_bonf'] = pval_age_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_age_down_sibling, result_path, 'correlation_age_down_sibling')
+metrics_dict_age_spearman['down_sibling'] = metrics_dict_age_down_sibling['spearman_rho']
 
 pval_ph_age_corrected_bh = multiple_test_correction(pvals_ph_age, 'fdr_bh', metrics_dict_ph_age_down_sibling)
 metrics_dict_ph_age_down_sibling['spearman_pval_corr_bh'] = pval_ph_age_corrected_bh
@@ -130,6 +144,7 @@ pval_ph_age_corrected_bonf = multiple_test_correction(pvals_ph_age, 'bonferroni'
 metrics_dict_ph_age_down_sibling['spearman_pval_corr_bonf'] = pval_ph_age_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_ph_age_down_sibling, result_path, 'correlation_ph_age_down_sibling')
+metrics_dict_ph_age_spearman['down_sibling'] = metrics_dict_ph_age_down_sibling['spearman_rho']
 
 pval_delta_corrected_bh = multiple_test_correction(pvals_delta_age, 'fdr_bh', metrics_dict_delta_down_sibling)
 metrics_dict_delta_down_sibling['spearman_pval_corr_bh'] = pval_delta_corrected_bh
@@ -137,6 +152,7 @@ pval_delta_corrected_bonf = multiple_test_correction(pvals_delta_age, 'bonferron
 metrics_dict_delta_down_sibling['spearman_pval_corr_bonf'] = pval_delta_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_delta_down_sibling, result_path, 'correlation_delta_age_down_sibling')
+metrics_dict_delta_age_spearman['down_sibling'] = metrics_dict_delta_down_sibling['spearman_rho']
 
 # Correlation for Down parents with age and delta age
 metrics_dict_age_down_parent = {'param': [],
@@ -167,6 +183,7 @@ pval_age_corrected_bonf = multiple_test_correction(pvals_age, 'bonferroni', metr
 metrics_dict_age_down_parent['spearman_pval_corr_bonf'] = pval_age_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_age_down_parent, result_path, 'correlation_age_down_parent')
+metrics_dict_age_spearman['down_parent'] = metrics_dict_age_down_parent['spearman_rho']
 
 pval_ph_age_corrected_bh = multiple_test_correction(pvals_ph_age, 'fdr_bh', metrics_dict_ph_age_down_parent)
 metrics_dict_ph_age_down_parent['spearman_pval_corr_bh'] = pval_ph_age_corrected_bh
@@ -174,6 +191,7 @@ pval_ph_age_corrected_bonf = multiple_test_correction(pvals_ph_age, 'bonferroni'
 metrics_dict_ph_age_down_parent['spearman_pval_corr_bonf'] = pval_ph_age_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_ph_age_down_parent, result_path, 'correlation_ph_age_down_parent')
+metrics_dict_ph_age_spearman['down_parent'] = metrics_dict_ph_age_down_parent['spearman_rho']
 
 pval_delta_corrected_bh = multiple_test_correction(pvals_delta_age, 'fdr_bh', metrics_dict_delta_down_parent)
 metrics_dict_delta_down_parent['spearman_pval_corr_bh'] = pval_delta_corrected_bh
@@ -181,6 +199,7 @@ pval_delta_corrected_bonf = multiple_test_correction(pvals_delta_age, 'bonferron
 metrics_dict_delta_down_parent['spearman_pval_corr_bonf'] = pval_delta_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_delta_down_parent, result_path, 'correlation_delta_age_down_parent')
+metrics_dict_delta_age_spearman['down_parent'] = metrics_dict_delta_down_parent['spearman_rho']
 
 # Correlation for long-living subjects with age and delta age
 metrics_dict_age_long_living = {'param': [],
@@ -210,6 +229,7 @@ pval_age_corrected_bonf = multiple_test_correction(pvals_age, 'bonferroni', metr
 metrics_dict_age_long_living['spearman_pval_corr_bonf'] = pval_age_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_age_long_living, result_path, 'correlation_age_long_living')
+metrics_dict_age_spearman['long_living'] = metrics_dict_age_long_living['spearman_rho']
 
 pval_ph_age_corrected_bh = multiple_test_correction(pvals_ph_age, 'fdr_bh', metrics_dict_ph_age_long_living)
 metrics_dict_ph_age_long_living['spearman_pval_corr_bh'] = pval_ph_age_corrected_bh
@@ -217,6 +237,7 @@ pval_ph_age_corrected_bonf = multiple_test_correction(pvals_ph_age, 'bonferroni'
 metrics_dict_ph_age_long_living['spearman_pval_corr_bonf'] = pval_ph_age_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_ph_age_long_living, result_path, 'correlation_ph_age_long_living')
+metrics_dict_ph_age_spearman['long_living'] = metrics_dict_ph_age_long_living['spearman_rho']
 
 pval_delta_corrected_bh = multiple_test_correction(pvals_delta_age, 'fdr_bh', metrics_dict_delta_long_living)
 metrics_dict_delta_long_living['spearman_pval_corr_bh'] = pval_delta_corrected_bh
@@ -224,6 +245,7 @@ pval_delta_corrected_bonf = multiple_test_correction(pvals_delta_age, 'bonferron
 metrics_dict_delta_long_living['spearman_pval_corr_bonf'] = pval_delta_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_delta_long_living, result_path, 'correlation_delta_age_long_living')
+metrics_dict_delta_age_spearman['long_living'] = metrics_dict_delta_long_living['spearman_rho']
 
 # Correlation for long-living subjects family with age and delta age
 metrics_dict_age_long_living_family = {'param': [],
@@ -254,6 +276,7 @@ pval_age_corrected_bonf = multiple_test_correction(pvals_age, 'bonferroni', metr
 metrics_dict_age_long_living_family['spearman_pval_corr_bonf'] = pval_age_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_age_long_living_family, result_path, 'correlation_age_long_living_family')
+metrics_dict_age_spearman['long_living_family'] = metrics_dict_age_long_living_family['spearman_rho']
 
 pval_ph_age_corrected_bh = multiple_test_correction(pvals_ph_age, 'fdr_bh', metrics_dict_ph_age_long_living_family)
 metrics_dict_ph_age_long_living_family['spearman_pval_corr_bh'] = pval_ph_age_corrected_bh
@@ -262,6 +285,7 @@ pval_ph_age_corrected_bonf = multiple_test_correction(pvals_ph_age, 'bonferroni'
 metrics_dict_ph_age_long_living_family['spearman_pval_corr_bonf'] = pval_ph_age_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_ph_age_long_living_family, result_path, 'correlation_ph_age_long_living_family')
+metrics_dict_ph_age_spearman['long_living_family'] = metrics_dict_ph_age_long_living_family['spearman_rho']
 
 pval_delta_corrected_bh = multiple_test_correction(pvals_delta_age, 'fdr_bh', metrics_dict_delta_long_living_family)
 metrics_dict_delta_long_living_family['spearman_pval_corr_bh'] = pval_delta_corrected_bh
@@ -270,6 +294,7 @@ pval_delta_corrected_bonf = multiple_test_correction(pvals_delta_age, 'bonferron
 metrics_dict_delta_long_living_family['spearman_pval_corr_bonf'] = pval_delta_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_delta_long_living_family, result_path, 'correlation_delta_age_long_living_family')
+metrics_dict_delta_age_spearman['long_living_family'] = metrics_dict_delta_long_living_family['spearman_rho']
 
 # Correlation for stressed subjects with age and delta age
 metrics_dict_age_stress = {'param': [],
@@ -300,6 +325,7 @@ pval_age_corrected_bonf = multiple_test_correction(pvals_age, 'bonferroni', metr
 metrics_dict_age_stress['spearman_pval_corr_bonf'] = pval_age_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_age_stress, result_path, 'correlation_age_stress')
+metrics_dict_age_spearman['stress'] = metrics_dict_age_stress['spearman_rho']
 
 pval_ph_age_corrected_bh = multiple_test_correction(pvals_ph_age, 'fdr_bh', metrics_dict_ph_age_stress)
 metrics_dict_ph_age_stress['spearman_pval_corr_bh'] = pval_ph_age_corrected_bh
@@ -307,6 +333,7 @@ pval_ph_age_corrected_bonf = multiple_test_correction(pvals_ph_age, 'bonferroni'
 metrics_dict_ph_age_stress['spearman_pval_corr_bonf'] = pval_ph_age_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_ph_age_stress, result_path, 'correlation_ph_age_stress')
+metrics_dict_ph_age_spearman['stress'] = metrics_dict_ph_age_stress['spearman_rho']
 
 pval_delta_corrected_bh = multiple_test_correction(pvals_delta_age, 'fdr_bh', metrics_dict_delta_stress)
 metrics_dict_delta_stress['spearman_pval_corr_bh'] = pval_delta_corrected_bh
@@ -315,6 +342,7 @@ pval_delta_corrected_bonf = multiple_test_correction(pvals_delta_age, 'bonferron
 metrics_dict_delta_stress['spearman_pval_corr_bonf'] = pval_delta_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_delta_stress, result_path, 'correlation_delta_age_stress')
+metrics_dict_delta_age_spearman['stress'] = metrics_dict_delta_stress['spearman_rho']
 
 # Correlation for control subjects with age and delta age
 metrics_dict_age_control = {'param': [],
@@ -344,6 +372,7 @@ pval_age_corrected_bonf = multiple_test_correction(pvals_age, 'bonferroni', metr
 metrics_dict_age_control['spearman_pval_corr_bonf'] = pval_age_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_age_control, result_path, 'correlation_age_control')
+metrics_dict_age_spearman['control'] = metrics_dict_age_control['spearman_rho']
 
 pval_ph_age_corrected_bh = multiple_test_correction(pvals_ph_age, 'fdr_bh', metrics_dict_ph_age_control)
 metrics_dict_ph_age_control['spearman_pval_corr_bh'] = pval_ph_age_corrected_bh
@@ -351,6 +380,7 @@ pval_ph_age_corrected_bonf = multiple_test_correction(pvals_ph_age, 'bonferroni'
 metrics_dict_ph_age_control['spearman_pval_corr_bonf'] = pval_ph_age_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_ph_age_control, result_path, 'correlation_ph_age_control')
+metrics_dict_ph_age_spearman['control'] = metrics_dict_ph_age_control['spearman_rho']
 
 pval_delta_corrected_bh = multiple_test_correction(pvals_delta_age, 'fdr_bh', metrics_dict_delta_control)
 metrics_dict_delta_control['spearman_pval_corr_bh'] = pval_delta_corrected_bh
@@ -359,6 +389,7 @@ pval_delta_corrected_bonf = multiple_test_correction(pvals_delta_age, 'bonferron
 metrics_dict_delta_control['spearman_pval_corr_bonf'] = pval_delta_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_delta_control, result_path, 'correlation_delta_age_control')
+metrics_dict_delta_age_spearman['control'] = metrics_dict_delta_control['spearman_rho']
 
 # Correlation for anemia subjects with age and delta age
 metrics_dict_age_anemia = {'param': [],
@@ -388,6 +419,7 @@ pval_age_corrected_bonf = multiple_test_correction(pvals_age, 'bonferroni', metr
 metrics_dict_age_anemia['spearman_pval_corr_bonf'] = pval_age_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_age_anemia, result_path, 'correlation_age_anemia')
+metrics_dict_age_spearman['anemia'] = metrics_dict_age_anemia['spearman_rho']
 
 pval_ph_age_corrected_bh = multiple_test_correction(pvals_ph_age, 'fdr_bh', metrics_dict_ph_age_anemia)
 metrics_dict_ph_age_anemia['spearman_pval_corr_bh'] = pval_ph_age_corrected_bh
@@ -395,6 +427,7 @@ pval_ph_age_corrected_bonf = multiple_test_correction(pvals_ph_age, 'bonferroni'
 metrics_dict_ph_age_anemia['spearman_pval_corr_bonf'] = pval_ph_age_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_ph_age_anemia, result_path, 'correlation_ph_age_anemia')
+metrics_dict_ph_age_spearman['anemia'] = metrics_dict_ph_age_anemia['spearman_rho']
 
 pval_delta_corrected_bh = multiple_test_correction(pvals_delta_age, 'fdr_bh', metrics_dict_delta_anemia)
 metrics_dict_delta_anemia['spearman_pval_corr_bh'] = pval_delta_corrected_bh
@@ -403,6 +436,7 @@ pval_delta_corrected_bonf = multiple_test_correction(pvals_delta_age, 'bonferron
 metrics_dict_delta_anemia['spearman_pval_corr_bonf'] = pval_delta_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_delta_anemia, result_path, 'correlation_delta_age_anemia')
+metrics_dict_delta_age_spearman['anemia'] = metrics_dict_delta_anemia['spearman_rho']
 
 # Correlation for hemodialysis subjects with age and delta age
 metrics_dict_age_dialysis = {'param': [],
@@ -432,6 +466,7 @@ pval_age_corrected_bonf = multiple_test_correction(pvals_age, 'bonferroni', metr
 metrics_dict_age_dialysis['spearman_pval_corr_bonf'] = pval_age_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_age_dialysis, result_path, 'correlation_age_dialysis')
+metrics_dict_age_spearman['dialysis'] = metrics_dict_age_dialysis['spearman_rho']
 
 pval_ph_age_corrected_bh = multiple_test_correction(pvals_ph_age, 'fdr_bh', metrics_dict_ph_age_dialysis)
 metrics_dict_ph_age_dialysis['spearman_pval_corr_bh'] = pval_ph_age_corrected_bh
@@ -439,6 +474,7 @@ pval_ph_age_corrected_bonf = multiple_test_correction(pvals_ph_age, 'bonferroni'
 metrics_dict_ph_age_dialysis['spearman_pval_corr_bonf'] = pval_ph_age_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_ph_age_dialysis, result_path, 'correlation_ph_age_dialysis')
+metrics_dict_ph_age_spearman['dialysis'] = metrics_dict_ph_age_dialysis['spearman_rho']
 
 pval_delta_corrected_bh = multiple_test_correction(pvals_delta_age, 'fdr_bh', metrics_dict_delta_dialysis)
 metrics_dict_delta_dialysis['spearman_pval_corr_bh'] = pval_delta_corrected_bh
@@ -447,6 +483,7 @@ pval_delta_corrected_bonf = multiple_test_correction(pvals_delta_age, 'bonferron
 metrics_dict_delta_dialysis['spearman_pval_corr_bonf'] = pval_delta_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_delta_dialysis, result_path, 'correlation_delta_age_dialysis')
+metrics_dict_delta_age_spearman['dialysis'] = metrics_dict_delta_dialysis['spearman_rho']
 
 # Correlation for healthy (stress and control) subjects with age and delta age
 metrics_dict_age_healthy = {'param': [],
@@ -479,6 +516,7 @@ pval_age_corrected_bonf = multiple_test_correction(pvals_age, 'bonferroni', metr
 metrics_dict_age_healthy['spearman_pval_corr_bonf'] = pval_age_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_age_healthy, result_path, 'correlation_age_healthy')
+metrics_dict_age_spearman['healthy'] = metrics_dict_age_healthy['spearman_rho']
 
 pval_ph_age_corrected_bh = multiple_test_correction(pvals_ph_age, 'fdr_bh', metrics_dict_ph_age_healthy)
 metrics_dict_ph_age_healthy['spearman_pval_corr_bh'] = pval_ph_age_corrected_bh
@@ -486,6 +524,7 @@ pval_ph_age_corrected_bonf = multiple_test_correction(pvals_ph_age, 'bonferroni'
 metrics_dict_ph_age_healthy['spearman_pval_corr_bonf'] = pval_ph_age_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_ph_age_healthy, result_path, 'correlation_ph_age_healthy')
+metrics_dict_ph_age_spearman['healthy'] = metrics_dict_ph_age_healthy['spearman_rho']
 
 pval_delta_corrected_bh = multiple_test_correction(pvals_delta_age, 'fdr_bh', metrics_dict_delta_healthy)
 metrics_dict_delta_healthy['spearman_pval_corr_bh'] = pval_delta_corrected_bh
@@ -494,3 +533,8 @@ pval_delta_corrected_bonf = multiple_test_correction(pvals_delta_age, 'bonferron
 metrics_dict_delta_healthy['spearman_pval_corr_bonf'] = pval_delta_corrected_bonf
 
 save_dict_to_xlsx(metrics_dict_delta_healthy, result_path, 'correlation_delta_age_healthy')
+metrics_dict_delta_age_spearman['healthy'] = metrics_dict_delta_healthy['spearman_rho']
+
+save_dict_to_xlsx(metrics_dict_age_spearman, result_path, 'correlation_age_spearman')
+save_dict_to_xlsx(metrics_dict_ph_age_spearman, result_path, 'correlation_ph_age_spearman')
+save_dict_to_xlsx(metrics_dict_delta_age_spearman, result_path, 'correlation_delta_age_spearman')
