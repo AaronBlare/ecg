@@ -1,4 +1,5 @@
 import math
+import statsmodels.api as sm
 from scipy.stats import spearmanr, pearsonr
 from statsmodels.stats.multitest import multipletests
 
@@ -98,11 +99,15 @@ def calculate_correlation_with_age(ecg_table, ids,
 def multiple_test_correction(pvals, method, metrics_dict_age):
 
     reject_bh, pvals_corr_bh, alphacSidak_bh, alphacBonf_bh = multipletests(pvals, 0.05, method=method)
+    if 'spearman_pval' in metrics_dict_age:
+        pval = metrics_dict_age['spearman_pval']
+    elif 'slope_p_value' in metrics_dict_age:
+        pval = metrics_dict_age['slope_p_value']
 
     pval_age_corrected = []
     original_index_age = 0
     for i in range(0, len(metrics_dict_age['param'])):
-        if metrics_dict_age['spearman_pval'][i] == 'nan':
+        if pval[i] == 'nan':
             pval_age_corrected.append('nan')
         else:
             pval_age_corrected.append(pvals_corr_bh[original_index_age])
@@ -110,3 +115,89 @@ def multiple_test_correction(pvals, method, metrics_dict_age):
 
     return pval_age_corrected
 
+
+def build_linreg_with_age(ecg_table, ids,
+                          metrics_dict_age,
+                          metrics_dict_ph_age,
+                          metrics_dict_delta):
+
+    parameters_names = list(ecg_table.columns)[12:]
+
+    pvals_age = []
+    pvals_ph_age = []
+    pvals_delta_age = []
+
+    for param_id in range(0, len(parameters_names)):
+        param_name = parameters_names[param_id]
+        ages, ph_ages, delta_ages, param_values = subset_curr_ages(ecg_table, ids, param_name)
+
+        if len(set(param_values)) <= 1:
+            metrics_dict_age['param'].append(param_name)
+            metrics_dict_age['R2'].append('nan')
+            metrics_dict_age['intercept'].append('nan')
+            metrics_dict_age['slope'].append('nan')
+            metrics_dict_age['intercept_std'].append('nan')
+            metrics_dict_age['slope_std'].append('nan')
+            metrics_dict_age['intercept_p_value'].append('nan')
+            metrics_dict_age['slope_p_value'].append('nan')
+
+            metrics_dict_ph_age['param'].append(param_name)
+            metrics_dict_ph_age['R2'].append('nan')
+            metrics_dict_ph_age['intercept'].append('nan')
+            metrics_dict_ph_age['slope'].append('nan')
+            metrics_dict_ph_age['intercept_std'].append('nan')
+            metrics_dict_ph_age['slope_std'].append('nan')
+            metrics_dict_ph_age['intercept_p_value'].append('nan')
+            metrics_dict_ph_age['slope_p_value'].append('nan')
+
+            metrics_dict_delta['param'].append(param_name)
+            metrics_dict_delta['R2'].append('nan')
+            metrics_dict_delta['intercept'].append('nan')
+            metrics_dict_delta['slope'].append('nan')
+            metrics_dict_delta['intercept_std'].append('nan')
+            metrics_dict_delta['slope_std'].append('nan')
+            metrics_dict_delta['intercept_p_value'].append('nan')
+            metrics_dict_delta['slope_p_value'].append('nan')
+
+        else:
+
+            x_age = sm.add_constant(ages)
+            results_age = sm.OLS(param_values, x_age).fit()
+
+            metrics_dict_age['param'].append(param_name)
+            metrics_dict_age['R2'].append(results_age.rsquared)
+            metrics_dict_age['intercept'].append(results_age.params[0])
+            metrics_dict_age['slope'].append(results_age.params[1])
+            metrics_dict_age['intercept_std'].append(results_age.bse[0])
+            metrics_dict_age['slope_std'].append(results_age.bse[1])
+            metrics_dict_age['intercept_p_value'].append(results_age.pvalues[0])
+            metrics_dict_age['slope_p_value'].append(results_age.pvalues[1])
+            pvals_age.append(results_age.pvalues[1])
+
+            x_ph_age = sm.add_constant(ph_ages)
+            results_ph_age = sm.OLS(param_values, x_ph_age).fit()
+
+            metrics_dict_ph_age['param'].append(param_name)
+            metrics_dict_ph_age['R2'].append(results_ph_age.rsquared)
+            metrics_dict_ph_age['intercept'].append(results_ph_age.params[0])
+            metrics_dict_ph_age['slope'].append(results_ph_age.params[1])
+            metrics_dict_ph_age['intercept_std'].append(results_ph_age.bse[0])
+            metrics_dict_ph_age['slope_std'].append(results_ph_age.bse[1])
+            metrics_dict_ph_age['intercept_p_value'].append(results_ph_age.pvalues[0])
+            metrics_dict_ph_age['slope_p_value'].append(results_ph_age.pvalues[1])
+            pvals_ph_age.append(results_ph_age.pvalues[1])
+
+            x_delta_age = sm.add_constant(delta_ages)
+            results_delta_age = sm.OLS(param_values, x_delta_age).fit()
+
+            metrics_dict_delta['param'].append(param_name)
+            metrics_dict_delta['R2'].append(results_delta_age.rsquared)
+            metrics_dict_delta['intercept'].append(results_delta_age.params[0])
+            metrics_dict_delta['slope'].append(results_delta_age.params[1])
+            metrics_dict_delta['intercept_std'].append(results_delta_age.bse[0])
+            metrics_dict_delta['slope_std'].append(results_delta_age.bse[1])
+            metrics_dict_delta['intercept_p_value'].append(results_delta_age.pvalues[0])
+            metrics_dict_delta['slope_p_value'].append(results_delta_age.pvalues[1])
+            pvals_delta_age.append(results_delta_age.pvalues[1])
+
+    return pvals_age, pvals_ph_age, pvals_delta_age
