@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 from path import get_path
-from functions import calculate_correlation_with_age, multiple_test_correction
+from functions import calculate_correlation_with_age, calculate_correlation_with_sex, multiple_test_correction
 from save import save_dict_to_xlsx
 
 path = get_path()
@@ -9,6 +9,7 @@ ecg_table = pd.read_excel(path + '/ecg_data_info.xlsx')
 ages = list(ecg_table['age'])
 ph_ages = list(ecg_table['phenotypic_age'])
 delta_ages = list(ecg_table['delta_age'])
+sexes = list(ecg_table['sex'])
 code_blood_table = list(ecg_table['code_blood_table'])
 parameters_names = list(ecg_table.columns)[12:]
 
@@ -538,3 +539,202 @@ metrics_dict_delta_age_spearman['healthy'] = metrics_dict_delta_healthy['spearma
 save_dict_to_xlsx(metrics_dict_age_spearman, result_path, 'correlation_age_spearman')
 save_dict_to_xlsx(metrics_dict_ph_age_spearman, result_path, 'correlation_ph_age_spearman')
 save_dict_to_xlsx(metrics_dict_delta_age_spearman, result_path, 'correlation_delta_age_spearman')
+
+####################################################################################################################
+
+metrics_dict_sex_point_biserial = {'param': []}
+
+# Correlation for all subjects with sex
+metrics_dict_sex = {'param': [], 'point_biserial_coeff': [], 'point_biserial_pval': []}
+
+subjects_ids = list(range(0, len(sexes)))
+pvals_sex = calculate_correlation_with_sex(ecg_table, subjects_ids, metrics_dict_sex)
+
+pval_sex_corrected_bh = multiple_test_correction(pvals_sex, 'fdr_bh', metrics_dict_sex)
+metrics_dict_sex['point_biserial_pval_corr_bh'] = pval_sex_corrected_bh
+pval_sex_corrected_bonf = multiple_test_correction(pvals_sex, 'bonferroni', metrics_dict_sex)
+metrics_dict_sex['point_biserial_pval_corr_bonf'] = pval_sex_corrected_bonf
+
+save_dict_to_xlsx(metrics_dict_sex, result_path, 'correlation_sex')
+metrics_dict_sex_point_biserial['param'] = metrics_dict_sex['param']
+metrics_dict_sex_point_biserial['all'] = metrics_dict_sex['point_biserial_coeff']
+
+# Correlation for Down subjects with sex
+metrics_dict_sex_down = {'param': [], 'point_biserial_coeff': [], 'point_biserial_pval': []}
+
+down_ids = []
+for i in range(0, len(code_blood_table)):
+    code = code_blood_table[i]
+    if str(code).startswith('Q'):
+        down_ids.append(i)
+
+pvals_sex = calculate_correlation_with_sex(ecg_table, down_ids, metrics_dict_sex_down)
+
+pval_sex_corrected_bh = multiple_test_correction(pvals_sex, 'fdr_bh', metrics_dict_sex_down)
+metrics_dict_sex_down['point_biserial_pval_corr_bh'] = pval_sex_corrected_bh
+pval_sex_corrected_bonf = multiple_test_correction(pvals_sex, 'bonferroni', metrics_dict_sex_down)
+metrics_dict_sex_down['point_biserial_pval_corr_bonf'] = pval_sex_corrected_bonf
+
+save_dict_to_xlsx(metrics_dict_sex_down, result_path, 'correlation_sex_down')
+metrics_dict_sex_point_biserial['down'] = metrics_dict_sex_down['point_biserial_coeff']
+
+# Correlation for Down siblings with sex
+metrics_dict_sex_down_sibling = {'param': [], 'point_biserial_coeff': [], 'point_biserial_pval': []}
+
+down_siblings_ids = []
+for i in range(0, len(code_blood_table)):
+    code = code_blood_table[i]
+    if str(code).startswith('B') or str(code).startswith('S'):
+        if 'Q' in str(code):
+            down_siblings_ids.append(i)
+
+pvals_sex = calculate_correlation_with_sex(ecg_table, down_siblings_ids, metrics_dict_sex_down_sibling)
+
+pval_sex_corrected_bh = multiple_test_correction(pvals_sex, 'fdr_bh', metrics_dict_sex_down_sibling)
+metrics_dict_sex_down_sibling['point_biserial_pval_corr_bh'] = pval_sex_corrected_bh
+pval_sex_corrected_bonf = multiple_test_correction(pvals_sex, 'bonferroni', metrics_dict_sex_down_sibling)
+metrics_dict_sex_down_sibling['point_biserial_pval_corr_bonf'] = pval_sex_corrected_bonf
+
+save_dict_to_xlsx(metrics_dict_sex_down_sibling, result_path, 'correlation_sex_down_sibling')
+metrics_dict_sex_point_biserial['down_sibling'] = metrics_dict_sex_down_sibling['point_biserial_coeff']
+
+# Correlation for Down parents with sex
+metrics_dict_sex_down_parent = {'param': [], 'point_biserial_coeff': [], 'point_biserial_pval': []}
+
+down_parent_ids = []
+for i in range(0, len(code_blood_table)):
+    code = code_blood_table[i]
+    if str(code).startswith('F') or str(code).startswith('M'):
+        if 'Q' in str(code):
+            down_parent_ids.append(i)
+
+pvals_sex = calculate_correlation_with_sex(ecg_table, down_parent_ids, metrics_dict_sex_down_parent)
+
+pval_sex_corrected_bh = multiple_test_correction(pvals_sex, 'fdr_bh', metrics_dict_sex_down_parent)
+metrics_dict_sex_down_parent['point_biserial_pval_corr_bh'] = pval_sex_corrected_bh
+pval_sex_corrected_bonf = multiple_test_correction(pvals_sex, 'bonferroni', metrics_dict_sex_down_parent)
+metrics_dict_sex_down_parent['point_biserial_pval_corr_bonf'] = pval_sex_corrected_bonf
+
+save_dict_to_xlsx(metrics_dict_sex_down_parent, result_path, 'correlation_sex_down_parent')
+metrics_dict_sex_point_biserial['down_parent'] = metrics_dict_sex_down_parent['point_biserial_coeff']
+
+# Correlation for long-living subjects with sex
+metrics_dict_sex_long_living = {'param': [], 'point_biserial_coeff': [], 'point_biserial_pval': []}
+
+long_living_ids = []
+for i in range(0, len(code_blood_table)):
+    code = code_blood_table[i]
+    if str(code).startswith('L'):
+        long_living_ids.append(i)
+
+pvals_sex = calculate_correlation_with_sex(ecg_table, long_living_ids, metrics_dict_sex_long_living)
+
+pval_sex_corrected_bh = multiple_test_correction(pvals_sex, 'fdr_bh', metrics_dict_sex_long_living)
+metrics_dict_sex_long_living['point_biserial_pval_corr_bh'] = pval_sex_corrected_bh
+pval_sex_corrected_bonf = multiple_test_correction(pvals_sex, 'bonferroni', metrics_dict_sex_long_living)
+metrics_dict_sex_long_living['point_biserial_pval_corr_bonf'] = pval_sex_corrected_bonf
+
+save_dict_to_xlsx(metrics_dict_sex_long_living, result_path, 'correlation_sex_long_living')
+metrics_dict_sex_point_biserial['long_living'] = metrics_dict_sex_long_living['point_biserial_coeff']
+
+# Correlation for long-living subjects family with sex
+metrics_dict_sex_long_living_family = {'param': [], 'point_biserial_coeff': [], 'point_biserial_pval': []}
+
+long_living_family_ids = []
+for i in range(0, len(code_blood_table)):
+    code = code_blood_table[i]
+    if str(code).startswith('F'):
+        if 'L' in str(code):
+            long_living_family_ids.append(i)
+
+pvals_sex = calculate_correlation_with_sex(ecg_table, long_living_family_ids, metrics_dict_sex_long_living_family)
+
+pval_sex_corrected_bh = multiple_test_correction(pvals_sex, 'fdr_bh', metrics_dict_sex_long_living_family)
+metrics_dict_sex_long_living_family['point_biserial_pval_corr_bh'] = pval_sex_corrected_bh
+pval_sex_corrected_bonf = multiple_test_correction(pvals_sex, 'bonferroni', metrics_dict_sex_long_living_family)
+metrics_dict_sex_long_living_family['point_biserial_pval_corr_bonf'] = pval_sex_corrected_bonf
+
+save_dict_to_xlsx(metrics_dict_sex_long_living_family, result_path, 'correlation_sex_long_living_family')
+metrics_dict_sex_point_biserial['long_living_family'] = metrics_dict_sex_long_living_family['point_biserial_coeff']
+
+# Correlation for stressed subjects with sex
+metrics_dict_sex_stress = {'param': [], 'point_biserial_coeff': [], 'point_biserial_pval': []}
+
+stress_ids = []
+for i in range(0, len(code_blood_table)):
+    code = code_blood_table[i]
+    if str(code).startswith('S'):
+        if 'L' not in str(code) and 'Q' not in str(code):
+            stress_ids.append(i)
+
+pvals_sex = calculate_correlation_with_sex(ecg_table, stress_ids, metrics_dict_sex_stress)
+
+pval_sex_corrected_bh = multiple_test_correction(pvals_sex, 'fdr_bh', metrics_dict_sex_stress)
+metrics_dict_sex_stress['point_biserial_pval_corr_bh'] = pval_sex_corrected_bh
+pval_sex_corrected_bonf = multiple_test_correction(pvals_sex, 'bonferroni', metrics_dict_sex_stress)
+metrics_dict_sex_stress['point_biserial_pval_corr_bonf'] = pval_sex_corrected_bonf
+
+save_dict_to_xlsx(metrics_dict_sex_stress, result_path, 'correlation_sex_stress')
+metrics_dict_sex_point_biserial['stress'] = metrics_dict_sex_stress['point_biserial_coeff']
+
+# Correlation for control subjects with sex
+metrics_dict_sex_control = {'param': [], 'point_biserial_coeff': [], 'point_biserial_pval': []}
+
+control_ids = []
+for i in range(0, len(code_blood_table)):
+    code = code_blood_table[i]
+    if str(code).startswith('I'):
+        control_ids.append(i)
+
+pvals_sex = calculate_correlation_with_sex(ecg_table, control_ids, metrics_dict_sex_control)
+
+pval_sex_corrected_bh = multiple_test_correction(pvals_sex, 'fdr_bh', metrics_dict_sex_control)
+metrics_dict_sex_control['point_biserial_pval_corr_bh'] = pval_sex_corrected_bh
+pval_sex_corrected_bonf = multiple_test_correction(pvals_sex, 'bonferroni', metrics_dict_sex_control)
+metrics_dict_sex_control['point_biserial_pval_corr_bonf'] = pval_sex_corrected_bonf
+
+save_dict_to_xlsx(metrics_dict_sex_control, result_path, 'correlation_sex_control')
+metrics_dict_sex_point_biserial['control'] = metrics_dict_sex_control['point_biserial_coeff']
+
+# Correlation for hemodialysis subjects with sex
+metrics_dict_sex_dialysis = {'param': [], 'point_biserial_coeff': [], 'point_biserial_pval': []}
+
+dialysis_ids = []
+for i in range(0, len(code_blood_table)):
+    code = code_blood_table[i]
+    if str(code).startswith('H'):
+        dialysis_ids.append(i)
+
+pvals_sex = calculate_correlation_with_sex(ecg_table, dialysis_ids, metrics_dict_sex_dialysis)
+
+pval_sex_corrected_bh = multiple_test_correction(pvals_sex, 'fdr_bh', metrics_dict_sex_dialysis)
+metrics_dict_sex_dialysis['point_biserial_pval_corr_bh'] = pval_sex_corrected_bh
+pval_sex_corrected_bonf = multiple_test_correction(pvals_sex, 'bonferroni', metrics_dict_sex_dialysis)
+metrics_dict_sex_dialysis['point_biserial_pval_corr_bonf'] = pval_sex_corrected_bonf
+
+save_dict_to_xlsx(metrics_dict_sex_dialysis, result_path, 'correlation_sex_dialysis')
+metrics_dict_sex_point_biserial['dialysis'] = metrics_dict_sex_dialysis['point_biserial_coeff']
+
+# Correlation for healthy (stress and control) subjects with sex
+metrics_dict_sex_healthy = {'param': [], 'point_biserial_coeff': [], 'point_biserial_pval': []}
+
+healthy_ids = []
+for i in range(0, len(code_blood_table)):
+    code = code_blood_table[i]
+    if str(code).startswith('S'):
+        if 'L' not in str(code) and 'Q' not in str(code):
+            healthy_ids.append(i)
+    elif str(code).startswith('I'):
+        healthy_ids.append(i)
+
+pvals_sex = calculate_correlation_with_sex(ecg_table, healthy_ids, metrics_dict_sex_healthy)
+
+pval_sex_corrected_bh = multiple_test_correction(pvals_sex, 'fdr_bh', metrics_dict_sex_healthy)
+metrics_dict_sex_healthy['point_biserial_pval_corr_bh'] = pval_sex_corrected_bh
+pval_sex_corrected_bonf = multiple_test_correction(pvals_sex, 'bonferroni', metrics_dict_sex_healthy)
+metrics_dict_sex_healthy['point_biserial_pval_corr_bonf'] = pval_sex_corrected_bonf
+
+save_dict_to_xlsx(metrics_dict_sex_healthy, result_path, 'correlation_sex_healthy')
+metrics_dict_sex_point_biserial['healthy'] = metrics_dict_sex_healthy['point_biserial_coeff']
+
+save_dict_to_xlsx(metrics_dict_sex_point_biserial, result_path, 'correlation_sex_point_biserial')
