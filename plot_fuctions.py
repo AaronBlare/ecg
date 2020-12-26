@@ -44,7 +44,7 @@ def linreg(data, line, param, r2, age_name, age_type, suffix, path):
     traces.append(trace)
 
     x_line = [min(data[0]), max(data[0])]
-    y_line = [line[0] * x_line[0] + line[1], line[0] * x_line[1] + line[1]]
+    y_line = [line['slope'] * x_line[0] + line['intercept'], line['slope'] * x_line[1] + line['intercept']]
     linreg_line = go.Scatter(x=x_line, y=y_line, mode='lines')
     traces.append(linreg_line)
 

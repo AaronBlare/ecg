@@ -174,11 +174,6 @@ def build_linreg_with_age(ecg_table, ids,
 
     pvals = {'age': [], 'ph_age': [], 'delta_age': []}
 
-    line = {'age': [], 'ph_age': [], 'delta_age': []}
-    R2 = {'age': [], 'ph_age': [], 'delta_age': []}
-
-    param_name_id = {}
-
     for param_id in range(0, len(parameters_names)):
         param_name = parameters_names[param_id]
         ages, ph_ages, delta_ages, param_values = subset_curr_ages(ecg_table, ids, param_name)
@@ -226,9 +221,6 @@ def build_linreg_with_age(ecg_table, ids,
             metrics_dict_age['slope_p_value'].append(results_age.pvalues[1])
             pvals['age'].append(results_age.pvalues[1])
 
-            line['age'].append([results_age.params[1], results_age.params[0]])
-            R2['age'].append(results_age.rsquared)
-
             x_ph_age = sm.add_constant(ph_ages)
             results_ph_age = sm.OLS(param_values, x_ph_age).fit()
 
@@ -241,9 +233,6 @@ def build_linreg_with_age(ecg_table, ids,
             metrics_dict_ph_age['intercept_p_value'].append(results_ph_age.pvalues[0])
             metrics_dict_ph_age['slope_p_value'].append(results_ph_age.pvalues[1])
             pvals['ph_age'].append(results_ph_age.pvalues[1])
-
-            line['ph_age'].append([results_ph_age.params[1], results_ph_age.params[0]])
-            R2['ph_age'].append(results_ph_age.rsquared)
 
             x_delta_age = sm.add_constant(delta_ages)
             results_delta_age = sm.OLS(param_values, x_delta_age).fit()
@@ -258,21 +247,17 @@ def build_linreg_with_age(ecg_table, ids,
             metrics_dict_delta['slope_p_value'].append(results_delta_age.pvalues[1])
             pvals['delta_age'].append(results_delta_age.pvalues[1])
 
-            line['delta_age'].append([results_delta_age.params[1], results_delta_age.params[0]])
-            R2['delta_age'].append(results_delta_age.rsquared)
-
-            param_name_id[param_name] = len(pvals)
-
-    return pvals, line, R2, param_name_id
+    return pvals
 
 
-def plot_linreg(ecg_table, ids, param_name_id, line, r2, age_type, group, path):
+def plot_linreg(ecg_table, ids, metrics_dict, age_type, group, path):
     parameters_names = list(ecg_table.columns)[12:]
 
     for param_id in range(0, len(parameters_names)):
         param_name = parameters_names[param_id]
-        if param_name in param_name_id:
-            ages, ph_ages, delta_ages, param_values = subset_curr_ages(ecg_table, ids, param_name)
+        ages, ph_ages, delta_ages, param_values = subset_curr_ages(ecg_table, ids, param_name)
+
+        if len(set(param_values)) > 1:
 
             if age_type == 'age':
                 data = [ages, param_values]
@@ -284,6 +269,9 @@ def plot_linreg(ecg_table, ids, param_name_id, line, r2, age_type, group, path):
                 data = [delta_ages, param_values]
                 age_name = 'Difference between biological and phenotypic age'
 
-            curr_id = param_name_id[param_name]
+            curr_index = metrics_dict['param'].index(param_name)
+            if metrics_dict['slope'][curr_index] != 'nan' and metrics_dict['intercept'][curr_index] != 'nan':
 
-            linreg(data, line[curr_id], param_name, r2[curr_id], age_name, age_type, group, path)
+                line = {'slope': metrics_dict['slope'][curr_index], 'intercept': metrics_dict['intercept'][curr_index]}
+
+                linreg(data, line, param_name, metrics_dict['R2'][curr_index], age_name, age_type, group, path)

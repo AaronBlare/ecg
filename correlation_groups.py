@@ -637,26 +637,6 @@ metrics_dict_sex_long_living['point_biserial_pval_corr_bonf'] = pval_sex_correct
 save_dict_to_xlsx(metrics_dict_sex_long_living, result_path, 'correlation_sex_long_living')
 metrics_dict_sex_point_biserial['long_living'] = metrics_dict_sex_long_living['point_biserial_coeff']
 
-# Correlation for long-living subjects family with sex
-metrics_dict_sex_long_living_family = {'param': [], 'point_biserial_coeff': [], 'point_biserial_pval': []}
-
-long_living_family_ids = []
-for i in range(0, len(code_blood_table)):
-    code = code_blood_table[i]
-    if str(code).startswith('F'):
-        if 'L' in str(code):
-            long_living_family_ids.append(i)
-
-pvals_sex = calculate_correlation_with_sex(ecg_table, long_living_family_ids, metrics_dict_sex_long_living_family)
-
-pval_sex_corrected_bh = multiple_test_correction(pvals_sex, 'fdr_bh', metrics_dict_sex_long_living_family)
-metrics_dict_sex_long_living_family['point_biserial_pval_corr_bh'] = pval_sex_corrected_bh
-pval_sex_corrected_bonf = multiple_test_correction(pvals_sex, 'bonferroni', metrics_dict_sex_long_living_family)
-metrics_dict_sex_long_living_family['point_biserial_pval_corr_bonf'] = pval_sex_corrected_bonf
-
-save_dict_to_xlsx(metrics_dict_sex_long_living_family, result_path, 'correlation_sex_long_living_family')
-metrics_dict_sex_point_biserial['long_living_family'] = metrics_dict_sex_long_living_family['point_biserial_coeff']
-
 # Correlation for stressed subjects with sex
 metrics_dict_sex_stress = {'param': [], 'point_biserial_coeff': [], 'point_biserial_pval': []}
 
