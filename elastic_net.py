@@ -47,8 +47,8 @@ model_type = ElasticNet(max_iter=10000, tol=0.001)
 # define grid
 grid = dict()
 grid['alpha'] = np.logspace(-5, 1, 61)
-grid['l1_ratio'] = np.linspace(0.0, 1.0, 11)
-# grid['l1_ratio'] = [0.5]
+# grid['l1_ratio'] = np.linspace(0.0, 1.0, 11)
+grid['l1_ratio'] = [0.5]
 # define search
 scoring = 'r2'
 search = GridSearchCV(estimator=model_type, scoring=scoring, param_grid=grid, cv=cv, verbose=3)

@@ -30,7 +30,7 @@ def get_axis(title):
 
 
 y_name = 'phenotypic_age'  # age or phenotypic_age
-part = 'snp_wo_subj'
+part = 'wo_p'
 
 target_part = 'Control'
 data_type = 'ECG'
