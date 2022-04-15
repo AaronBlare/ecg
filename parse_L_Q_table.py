@@ -72,3 +72,6 @@ data_dict['Cardiorisk'] = risk_score
 
 result_df = pd.DataFrame.from_dict(data_dict)
 result_df.to_excel(get_path() + '/parsed_L_Q.xlsx', index=False)
+
+result_df_wo_na = result_df.dropna()
+result_df_wo_na.to_excel(get_path() + '/L_Q_snp.xlsx', index=False)
