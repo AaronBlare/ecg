@@ -5,9 +5,10 @@ import math
 
 path = get_path()
 L_Q_table_name = 'L_Q_2022.xlsx'
-target_columns = {'Код': 'Code', 'Пол': 'Sex', 'Год рождения': 'Birth date', 'Дата забора': 'Test date',
+target_columns = {'Код': 'Code', 'Пол': 'Sex',
+                  'Год рождения': 'Birth date', 'Дата забора': 'Test date', 'Levin_age': 'Levine_age',
                   'SNP9': 'SNP9', 'SNP12': 'SNP12', 'SNPCol': 'SNPCol', 'SNPMTHFR': 'SNPMTHFR', 'SNPApoB': 'SNPApoB'}
-additional_columns = ['Age', 'Cardiorisk']
+additional_columns = ['Age', 'Sheet_name']
 
 snps_columns = ['SNP9', 'SNP12', 'SNPCol', 'SNPMTHFR', 'SNPApoB']
 
@@ -40,7 +41,18 @@ for sheet_name in sheet_names:
                         curr_column[subject_id] = f"{str(curr_column[subject_id])}-01-01"
                     else:
                         curr_column[subject_id] = str(curr_column[subject_id]).split(' ')[0]
+            elif target_column_eng == 'Levine_age':
+                for subject_id in range(0, len(curr_column)):
+                    if isinstance(curr_column[subject_id], str):
+                        if len(curr_column[subject_id].split('.')) > 1:
+                            curr_column[subject_id] = float(curr_column[subject_id])
+                        elif len(curr_column[subject_id].split(',')) > 1:
+                            curr_column[subject_id] = float(curr_column[subject_id].replace(',', '.'))
+                        else:
+                            curr_column[subject_id] = math.nan
             data_dict[target_column_eng].extend(curr_column)
+            column_len = len(curr_column)
+        data_dict['Sheet_name'].extend([sheet_name] * column_len)
 
 age = []
 for subject_id in range(0, len(data_dict['Test date'])):
