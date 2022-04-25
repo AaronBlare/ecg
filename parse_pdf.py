@@ -5,16 +5,20 @@ from path import get_path
 from pdfminer.high_level import extract_text
 from tabula import read_pdf
 
-path = get_path() + '/data/pdf/'
+path = get_path() + '/data/pdf_2021/'
 data_dict = {'code': [], 'name': [], 'ecg_date': [], 'ecg_time': [], 'birth_date': [], 'age': [],
              'sex': [], 'height': [], 'weight': [], 'heart_rate': []}
 
 for file in os.listdir(path):
+    print(file)
     text = extract_text(path + file)
     text = re.sub(r'\n\s*\n', '\n', text)
     text_list = text.split('\n')
 
-    name_list = re.findall(r"[\w']+", text_list[2].encode("latin-1").decode('cp1251'))
+    try:
+        name_list = re.findall(r"[\w']+", text_list[2].encode("latin-1").decode('cp1251'))
+    except UnicodeEncodeError:
+        name_list = text_list[2].split(' ')
     if len(name_list) == 3:
         if len(name_list[1]) > len(name_list[-1]):
             name = name_list[0] + ' ' + name_list[-1] + ' ' + name_list[1]
@@ -26,36 +30,47 @@ for file in os.listdir(path):
         name = name_list[0]
     data_dict['name'].append(name)
 
-    code = text_list[3].encode("latin-1").decode('cp1251')
+    try:
+        code = text_list[3].encode("latin-1").decode('cp1251')
+    except UnicodeEncodeError:
+        code = text_list[3]
     data_dict['code'].append(code)
 
-    if text_list[4] == 'Case No.:':
+    if text_list[4] in ['Case No.:', '№ ист.бол.:']:
 
         ecg_date = text_list[5].split(' ')
         data_dict['ecg_date'].append(ecg_date[0])
         data_dict['ecg_time'].append(ecg_date[2])
 
-        birth_date = text_list[6]
+        birth_date = text_list[12]
         data_dict['birth_date'].append(birth_date)
 
-        age = text_list[7].split(' ')[0]
+        age = text_list[13].split(' ')[0]
         try:
             int(age)
             data_dict['age'].append(int(age))
         except ValueError:
             data_dict['age'].append('nan')
 
-        sex = text_list[8]
+        sex = text_list[14]
+        if sex == 'Ж':
+            sex = 'F'
+        elif sex == 'М':
+            sex = 'M'
         data_dict['sex'].append(sex)
 
-        height = text_list[9].split(' ')[0]
+        height = text_list[15].split(' ')[0]
+        if ',' in height:
+            height = height.replace(',', '.')
         try:
             float(height)
             data_dict['height'].append(float(height))
         except ValueError:
             data_dict['height'].append('nan')
 
-        weight = text_list[10].split(' ')[0]
+        weight = text_list[16].split(' ')[0]
+        if ',' in weight:
+            weight = weight.replace(',', '.')
         try:
             float(weight)
             data_dict['weight'].append(float(weight))
@@ -105,7 +120,7 @@ for file in os.listdir(path):
             else:
                 data_dict[axis_names_full[i]] = [axis[axis_names[i]]]
 
-    elif text_list[3] == 'Case No.:':
+    elif text_list[3] in ['Case No.:', '№ ист.бол.:']:
 
         name = ''
         data_dict['name'][-1] = name
@@ -127,9 +142,15 @@ for file in os.listdir(path):
             data_dict['age'].append('nan')
 
         sex = text_list[7]
+        if sex == 'Ж':
+            sex = 'F'
+        elif sex == 'М':
+            sex = 'M'
         data_dict['sex'].append(sex)
 
         height = text_list[8].split(' ')[0]
+        if ',' in height:
+            height = height.replace(',', '.')
         try:
             float(height)
             data_dict['height'].append(float(height))
@@ -137,6 +158,8 @@ for file in os.listdir(path):
             data_dict['height'].append('nan')
 
         weight = text_list[9].split(' ')[0]
+        if ',' in weight:
+            weight = weight.replace(',', '.')
         try:
             float(weight)
             data_dict['weight'].append(float(weight))
@@ -186,9 +209,12 @@ for file in os.listdir(path):
             else:
                 data_dict[axis_names_full[i]] = [axis[axis_names[i]]]
 
-    elif text_list[0] != 'Pat-Name:':
+    elif text_list[0] not in ['Pat-Name:', 'Пациент:']:
 
-        name_list = re.findall(r"[\w']+", text_list[0].encode("latin-1").decode('cp1251'))
+        try:
+            name_list = re.findall(r"[\w']+", text_list[0].encode("latin-1").decode('cp1251'))
+        except UnicodeEncodeError:
+            name_list = text_list[0].split(' ')
         if len(name_list) == 3:
             if len(name_list[1]) > len(name_list[-1]):
                 name = name_list[0] + ' ' + name_list[-1] + ' ' + name_list[1]
@@ -199,7 +225,10 @@ for file in os.listdir(path):
         else:
             name = name_list[0]
         data_dict['name'][-1] = name
-        code = text_list[1].encode("latin-1").decode('cp1251')
+        try:
+            code = text_list[1].encode("latin-1").decode('cp1251')
+        except UnicodeEncodeError:
+            code = text_list[1]
         data_dict['code'][-1] = code
 
         ecg_date = text_list[41].split(' ')
@@ -217,9 +246,15 @@ for file in os.listdir(path):
             data_dict['age'].append('nan')
 
         sex = text_list[4]
+        if sex == 'Ж':
+            sex = 'F'
+        elif sex == 'М':
+            sex = 'M'
         data_dict['sex'].append(sex)
 
         height = text_list[5].split(' ')[0]
+        if ',' in height:
+            height = height.replace(',', '.')
         try:
             float(height)
             data_dict['height'].append(float(height))
@@ -227,6 +262,8 @@ for file in os.listdir(path):
             data_dict['height'].append('nan')
 
         weight = text_list[6].split(' ')[0]
+        if ',' in weight:
+            weight = weight.replace(',', '.')
         try:
             float(weight)
             data_dict['weight'].append(float(weight))
@@ -281,27 +318,35 @@ for file in os.listdir(path):
         data_dict['ecg_date'].append(ecg_date[0])
         data_dict['ecg_time'].append(ecg_date[2])
 
-        birth_date = text_list[4]
+        birth_date = text_list[10]
         data_dict['birth_date'].append(birth_date)
 
-        age = text_list[5].split(' ')[0]
+        age = text_list[11].split(' ')[0]
         try:
             int(age)
             data_dict['age'].append(int(age))
         except ValueError:
             data_dict['age'].append('nan')
 
-        sex = text_list[6]
+        sex = text_list[12]
+        if sex == 'Ж':
+            sex = 'F'
+        elif sex == 'М':
+            sex = 'M'
         data_dict['sex'].append(sex)
 
-        height = text_list[7].split(' ')[0]
+        height = text_list[13].split(' ')[0]
+        if ',' in height:
+            height = height.replace(',', '.')
         try:
             float(height)
             data_dict['height'].append(float(height))
         except ValueError:
             data_dict['height'].append('nan')
 
-        weight = text_list[8].split(' ')[0]
+        weight = text_list[14].split(' ')[0]
+        if ',' in weight:
+            weight = weight.replace(',', '.')
         try:
             float(weight)
             data_dict['weight'].append(float(weight))
@@ -401,9 +446,27 @@ for file in os.listdir(path):
     leads_names = list(parameters_df[0].columns)[1:]
     for lead in leads_names:
         for param in parameters_names:
-            curr_key = param + '_lead_' + lead
+            if param.endswith('.'):
+                param_eng = param[:-1]
+            else:
+                param_eng = param
+            if 'пол' in param:
+                param_eng = param_eng.replace('пол', 'Pos')
+            if 'ампл' in param:
+                param_eng = param_eng.replace('ампл', 'Ampl')
+            if 'отр' in param:
+                param_eng = param_eng.replace('отр', 'Neg')
+            if 'длит' in param:
+                param_eng = param_eng.replace('длит', 'Dur')
+            if 'интегр' in param:
+                param_eng = param_eng.replace('интегр', 'Integ.')
+            curr_key = param_eng + '_lead_' + lead
             curr_index = parameters_names.index(param)
-            curr_value = float(list(parameters_df[0][lead])[curr_index])
+            curr_value = list(parameters_df[0][lead])[curr_index]
+            if ',' in curr_value:
+                curr_value = float(curr_value.replace(',', '.'))
+            else:
+                curr_value = float(curr_value)
             if curr_key in data_dict:
                 data_dict[curr_key].append(curr_value)
             else:
@@ -414,6 +477,6 @@ for file in os.listdir(path):
             print(file)
 
 result_df = pd.DataFrame.from_dict(data_dict)
-writer = pd.ExcelWriter(get_path() + '/ecg_data.xlsx', engine='xlsxwriter')
+writer = pd.ExcelWriter(get_path() + '/ecg_data_2021.xlsx', engine='xlsxwriter')
 result_df.to_excel(writer, index=False)
 writer.save()
