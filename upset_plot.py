@@ -31,6 +31,6 @@ plt.savefig(f"{path_save}upset.png", bbox_inches='tight')
 plt.clf()
 """
 df = from_contents(data_dict)
-fig = UpSet(df, show_counts=True, min_degree=1).plot()
+fig = UpSet(df, show_counts=True, min_degree=1, sort_categories_by=None).plot()
 plt.savefig(f"{path_save}upset.png", bbox_inches='tight')
 plt.clf()
